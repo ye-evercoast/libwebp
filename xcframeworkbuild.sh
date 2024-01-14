@@ -31,12 +31,16 @@ readonly SDK=($(
     | grep iphoneos | sort | tail -n 1 | awk '{print substr($NF, 9)}'
   xcodebuild -showsdks \
     | grep macosx | sort | tail -n 1 | awk '{print substr($NF, 7)}'
+  xcodebuild -showsdks \
+    | grep xros | sort | tail -n 1 | awk '{print substr($NF, 5)}'
 ))
 readonly IOS=0
 readonly MACOS=1
-readonly IOS_SIMULATOR=2
-readonly MACOS_CATALYST=3
-readonly NUM_PLATFORMS=4
+readonly XROS=2
+readonly XROS_SIMULATOR=3
+readonly IOS_SIMULATOR=4
+readonly MACOS_CATALYST=5
+readonly NUM_PLATFORMS=6
 
 readonly OLDPATH=${PATH}
 
@@ -45,6 +49,8 @@ PLATFORMS[$IOS]="iPhoneOS-armv7 iPhoneOS-armv7s iPhoneOS-arm64"
 PLATFORMS[$IOS_SIMULATOR]="iPhoneSimulator-i386 iPhoneSimulator-x86_64"
 PLATFORMS[$MACOS]="MacOSX-x86_64"
 PLATFORMS[$MACOS_CATALYST]="MacOSX-Catalyst-x86_64"
+PLATFORMS[$XROS]="XROS-arm64"
+PLATFORMS[$XROS_SIMULATOR]="XRSimulator-arm64 XRSimulator-x86_64"
 if [[ "${XCODE%%.*}" -ge 12 ]]; then
   PLATFORMS[$MACOS]+=" MacOSX-arm64"
   PLATFORMS[$MACOS_CATALYST]+=" MacOSX-Catalyst-arm64"
@@ -102,6 +108,7 @@ update_headers_path() {
 echo "Xcode Version: ${XCODE}"
 echo "iOS SDK Version: ${SDK[$IOS]}"
 echo "MacOS SDK Version: ${SDK[$MACOS]}"
+echo "XROS SDK Version: ${SDK[$XROS]}"
 
 if [[ -e "${BUILDDIR}" || -e "${TARGETDIR}" || -e "${DECTARGETDIR}" \
       || -e "${MUXTARGETDIR}" || -e "${DEMUXTARGETDIR}" ]]; then
@@ -150,6 +157,9 @@ for (( i = 0; i < $NUM_PLATFORMS; ++i )); do
       MacOS*)
         sdk="${SDK[$MACOS]}"
         ;;
+      XR*)
+        sdk="${SDK[$XROS]}"
+        ;;
       *)
         echo "Unrecognized platform: ${PLATFORM}!"
         exit 1
@@ -172,6 +182,10 @@ for (( i = 0; i < $NUM_PLATFORMS; ++i )); do
       MacOSX*)
         CFLAGS+=" -mmacosx-version-min=${MACOSX_MIN_VERSION}"
         ;;
+      XROS*)
+        CFLAGS+=" -fembed-bitcode"
+        CFLAGS+=" -target ${ARCH}-apple-xros${IOS_MIN_VERSION}"
+        [[ "${PLATFORM}" == *Simulator* ]] && CFLAGS+="-simulator"
     esac
 
     set -x
