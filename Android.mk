@@ -42,6 +42,7 @@ sharpyuv_srcs := \
     sharpyuv/sharpyuv_dsp.c \
     sharpyuv/sharpyuv_gamma.c \
     sharpyuv/sharpyuv_neon.$(NEON) \
+    sharpyuv/sharpyuv_risk_table.c \
     sharpyuv/sharpyuv_sse2.c \
 
 dec_srcs := \
@@ -164,6 +165,7 @@ utils_dec_srcs := \
     src/utils/color_cache_utils.c \
     src/utils/filters_utils.c \
     src/utils/huffman_utils.c \
+    src/utils/palette.c \
     src/utils/quant_levels_dec_utils.c \
     src/utils/random_utils.c \
     src/utils/rescaler_utils.c \
