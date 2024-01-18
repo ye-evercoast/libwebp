@@ -520,7 +520,7 @@ if(WEBP_BUILD_DWEBP)
   add_executable(dwebp ${DWEBP_SRCS})
   target_link_libraries(dwebp exampleutil imagedec imageenc)
   target_include_directories(dwebp PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src)
-  install(TARGETS dwebp RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+  install(TARGETS dwebp RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
 if(WEBP_BUILD_CWEBP)
@@ -530,7 +530,7 @@ if(WEBP_BUILD_CWEBP)
   target_link_libraries(cwebp exampleutil imagedec webp)
   target_include_directories(cwebp PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src
                                            ${CMAKE_CURRENT_SOURCE_DIR})
-  install(TARGETS cwebp RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+  install(TARGETS cwebp RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
 if(WEBP_BUILD_LIBWEBPMUX)
@@ -572,7 +572,7 @@ if(WEBP_BUILD_IMG2WEBP)
                         libwebpmux)
   target_include_directories(img2webp PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src
                                               ${CMAKE_CURRENT_SOURCE_DIR})
-  install(TARGETS img2webp RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+  install(TARGETS img2webp RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
 if(WEBP_BUILD_VWEBP)
@@ -593,7 +593,7 @@ if(WEBP_BUILD_VWEBP)
     target_include_directories(
       vwebp PRIVATE ${GLUT_INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR}/src
                     ${OPENGL_INCLUDE_DIR})
-    install(TARGETS vwebp RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+    install(TARGETS vwebp RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR})
     if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
       check_c_compiler_flag("-Wno-deprecated-declarations" HAS_NO_DEPRECATED)
       if(HAS_NO_DEPRECATED)
@@ -612,7 +612,7 @@ if(WEBP_BUILD_WEBPINFO)
   target_link_libraries(webpinfo exampleutil imageioutil)
   target_include_directories(webpinfo PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src
                                               ${CMAKE_CURRENT_SOURCE_DIR}/src)
-  install(TARGETS webpinfo RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+  install(TARGETS webpinfo RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
 if(WEBP_BUILD_WEBPMUX)
@@ -622,7 +622,7 @@ if(WEBP_BUILD_WEBPMUX)
   add_executable(webpmux ${WEBPMUX_SRCS})
   target_link_libraries(webpmux exampleutil imageioutil libwebpmux webp)
   target_include_directories(webpmux PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src)
-  install(TARGETS webpmux RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+  install(TARGETS webpmux RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
 if(WEBP_BUILD_EXTRAS)
