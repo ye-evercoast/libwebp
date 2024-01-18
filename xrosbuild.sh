@@ -21,8 +21,6 @@ readonly SDK=$(xcodebuild -showsdks \
   | grep xros | sort | tail -n 1 | awk '{print substr($NF, 5)}'
 )
 
-echo "XROS SDK: ${SDK}"
-
 # Extract Xcode version.
 readonly XCODE=$(xcodebuild -version | grep Xcode | cut -d " " -f2)
 if [[ -z "${XCODE}" ]]; then
@@ -30,44 +28,46 @@ if [[ -z "${XCODE}" ]]; then
   exit 1
 fi
 
-readonly OLDPATH=${PATH}
-
-#PLATFORMS="XROS-arm64 XRSimulator-arm64"
-PLATFORMS="XROS-arm64"
-readonly PLATFORMS
-readonly SRCDIR=$(dirname $0)
-readonly TOPDIR=$(pwd)
-readonly BUILDDIR="${TOPDIR}/xrosbuild"
-readonly TARGETDIR="${TOPDIR}/WebP.framework"
-readonly DECTARGETDIR="${TOPDIR}/WebPDecoder.framework"
-readonly MUXTARGETDIR="${TOPDIR}/WebPMux.framework"
-readonly DEMUXTARGETDIR="${TOPDIR}/WebPDemux.framework"
-readonly SHARPYUVTARGETDIR="${TOPDIR}/SharpYuv.framework"
-readonly DEVELOPER=$(xcode-select --print-path)
-readonly PLATFORMSROOT="${DEVELOPER}/Platforms"
-readonly LIPO=$(xcrun -sdk xros${SDK} -find lipo)
-LIBLIST=''
-DECLIBLIST=''
-MUXLIBLIST=''
-DEMUXLIBLIST=''
-
 if [[ -z "${SDK}" ]]; then
   echo "XROS SDK not available"
   exit 1
-#elif [[ ${SDK%%.*} -le 1 ]]; then
-#  echo "You need XROS SDK version 1.0 or above"
-#  exit 1
 fi
 
-EXTRA_CFLAGS="-fembed-bitcode"
+echo "XROS SDK: ${SDK}"
 
-echo "Xcode Version: ${XCODE}"
-echo "XROS SDK Version: ${SDK}"
+readonly OLDPATH=${PATH}
 
-if [[ -e "${BUILDDIR}" || -e "${TARGETDIR}" || -e "${DECTARGETDIR}" \
-      || -e "${MUXTARGETDIR}" || -e "${DEMUXTARGETDIR}" \
-      || -e "${SHARPYUVTARGETDIR}" ]]; then
-  cat << EOF
+PLATFORMS="XROS-arm64 XRSimulator-arm64"
+#readonly PLATFORMS
+readonly SRCDIR=$(dirname $0)
+readonly TOPDIR=$(pwd)
+
+for PLATFORM in ${PLATFORMS}; do
+  BUILDDIR="${TOPDIR}/xrosbuild/${PLATFORM}"
+  TARGETDIR="${BUILDDIR}/WebP.framework"
+  DECTARGETDIR="${BUILDDIR}/WebPDecoder.framework"
+  MUXTARGETDIR="${BUILDDIR}/WebPMux.framework"
+  DEMUXTARGETDIR="${BUILDDIR}/WebPDemux.framework"
+  SHARPYUVTARGETDIR="${BUILDDIR}/SharpYuv.framework"
+  DEVELOPER=$(xcode-select --print-path)
+  PLATFORMSROOT="${DEVELOPER}/Platforms"
+  LIPO=$(xcrun -sdk xros${SDK} -find lipo)
+  LIBLIST=''
+  DECLIBLIST=''
+  MUXLIBLIST=''
+  DEMUXLIBLIST=''
+  SHARPYUVLIBLIST=''
+
+
+  EXTRA_CFLAGS="-fembed-bitcode"
+
+  echo "Xcode Version: ${XCODE}"
+  echo "XROS SDK Version: ${SDK}"
+
+  if [[ -e "${BUILDDIR}" || -e "${TARGETDIR}" || -e "${DECTARGETDIR}" \
+        || -e "${MUXTARGETDIR}" || -e "${DEMUXTARGETDIR}" \
+        || -e "${SHARPYUVTARGETDIR}" ]]; then
+    cat << EOF
 WARNING: The following directories will be deleted:
 WARNING:   ${BUILDDIR}
 WARNING:   ${TARGETDIR}
@@ -77,27 +77,27 @@ WARNING:   ${DEMUXTARGETDIR}
 WARNING:   ${SHARPYUVTARGETDIR}
 
 EOF
-#  sleep 5
-fi
-rm -rf ${BUILDDIR} ${TARGETDIR} ${DECTARGETDIR} \
-    ${MUXTARGETDIR} ${DEMUXTARGETDIR} ${SHARPYUVTARGETDIR}
-mkdir -p ${BUILDDIR} ${TARGETDIR}/Headers/ ${DECTARGETDIR}/Headers/ \
-    ${MUXTARGETDIR}/Headers/ ${DEMUXTARGETDIR}/Headers/ \
-    ${SHARPYUVTARGETDIR}/Headers/
+  fi
 
-if [[ ! -e ${SRCDIR}/configure ]]; then
-  if ! (cd ${SRCDIR} && sh autogen.sh); then
-    cat << EOF
+  rm -rf ${BUILDDIR} ${TARGETDIR} ${DECTARGETDIR} \
+      ${MUXTARGETDIR} ${DEMUXTARGETDIR} ${SHARPYUVTARGETDIR}
+  mkdir -p ${BUILDDIR} ${TARGETDIR}/Headers/ ${DECTARGETDIR}/Headers/ \
+      ${MUXTARGETDIR}/Headers/ ${DEMUXTARGETDIR}/Headers/ \
+      ${SHARPYUVTARGETDIR}/Headers/
+
+  if [[ ! -e ${SRCDIR}/configure ]]; then
+    if ! (cd ${SRCDIR} && sh autogen.sh); then
+      cat << EOF
 Error creating configure script!
 This script requires the autoconf/automake and libtool to build. MacPorts can
 be used to obtain these:
 https://www.macports.org/install.php
 EOF
-    exit 1
+      exit 1
+    fi
   fi
-fi
 
-for PLATFORM in ${PLATFORMS}; do
+
   if [[ "${PLATFORM}" == "XROS-arm64" ]]; then
     PLATFORM="XROS"
     ARCH="arm64"
@@ -146,29 +146,34 @@ for PLATFORM in ${PLATFORMS}; do
   make clean
 
   export PATH=${OLDPATH}
+
+  echo "LIBLIST = ${LIBLIST}"
+  cp -a ${SRCDIR}/src/webp/{decode,encode,types}.h ${TARGETDIR}/Headers/
+  cp -a ${SRCDIR}/plist/Info_WebP.plist ${TARGETDIR}/Info.plist
+  ${LIPO} -create ${LIBLIST} -output ${TARGETDIR}/WebP
+
+  echo "DECLIBLIST = ${DECLIBLIST}"
+  cp -a ${SRCDIR}/src/webp/{decode,types}.h ${DECTARGETDIR}/Headers/
+  cp -a ${SRCDIR}/plist/Info_WebPDecoder.plist ${DECTARGETDIR}/Info.plist
+  ${LIPO} -create ${DECLIBLIST} -output ${DECTARGETDIR}/WebPDecoder
+
+  echo "MUXLIBLIST = ${MUXLIBLIST}"
+  cp -a ${SRCDIR}/src/webp/{types,mux,mux_types}.h \
+      ${MUXTARGETDIR}/Headers/
+  cp -a ${SRCDIR}/plist/Info_WebPMux.plist ${MUXTARGETDIR}/Info.plist
+  ${LIPO} -create ${MUXLIBLIST} -output ${MUXTARGETDIR}/WebPMux
+
+  echo "DEMUXLIBLIST = ${DEMUXLIBLIST}"
+  cp -a ${SRCDIR}/src/webp/{decode,types,mux_types,demux}.h \
+      ${DEMUXTARGETDIR}/Headers/
+  cp -a ${SRCDIR}/plist/Info_WebPDemux.plist ${DEMUXTARGETDIR}/Info.plist
+  ${LIPO} -create ${DEMUXLIBLIST} -output ${DEMUXTARGETDIR}/WebPDemux
+
+  echo "SHARPYUVLIBLIST = ${SHARPYUVLIBLIST}"
+  cp -a ${SRCDIR}/sharpyuv/{sharpyuv,sharpyuv_csp}.h \
+      ${SHARPYUVTARGETDIR}/Headers/
+  cp -a ${SRCDIR}/plist/Info_SharpYuv.plist ${SHARPYUVTARGETDIR}/Info.plist
+  ${LIPO} -create ${SHARPYUVLIBLIST} -output ${SHARPYUVTARGETDIR}/SharpYuv
+
 done
-
-echo "LIBLIST = ${LIBLIST}"
-cp -a ${SRCDIR}/src/webp/{decode,encode,types}.h ${TARGETDIR}/Headers/
-${LIPO} -create ${LIBLIST} -output ${TARGETDIR}/WebP
-
-echo "DECLIBLIST = ${DECLIBLIST}"
-cp -a ${SRCDIR}/src/webp/{decode,types}.h ${DECTARGETDIR}/Headers/
-${LIPO} -create ${DECLIBLIST} -output ${DECTARGETDIR}/WebPDecoder
-
-echo "MUXLIBLIST = ${MUXLIBLIST}"
-cp -a ${SRCDIR}/src/webp/{types,mux,mux_types}.h \
-    ${MUXTARGETDIR}/Headers/
-${LIPO} -create ${MUXLIBLIST} -output ${MUXTARGETDIR}/WebPMux
-
-echo "DEMUXLIBLIST = ${DEMUXLIBLIST}"
-cp -a ${SRCDIR}/src/webp/{decode,types,mux_types,demux}.h \
-    ${DEMUXTARGETDIR}/Headers/
-${LIPO} -create ${DEMUXLIBLIST} -output ${DEMUXTARGETDIR}/WebPDemux
-
-echo "SHARPYUVLIBLIST = ${SHARPYUVLIBLIST}"
-cp -a ${SRCDIR}/sharpyuv/{sharpyuv,sharpyuv_csp}.h \
-    ${SHARPYUVTARGETDIR}/Headers/
-${LIPO} -create ${SHARPYUVLIBLIST} -output ${SHARPYUVTARGETDIR}/SharpYuv
-
 echo  "SUCCESS"
