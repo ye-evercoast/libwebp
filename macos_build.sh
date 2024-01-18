@@ -28,10 +28,12 @@ WEBPMUX_LIB="libwebpmux.dylib"
 WEBPDEMUX_LIB="libwebpdemux.dylib"
 SHARPYUV_LIB="libsharpyuv.dylib"
 
-rm ${WEBP_LIB} ${WEBPDECODER_LIB} ${WEBPMUX_LIB} ${WEBPDEMUX_LIB} ${SHARPYUV_LIB}
+rm -rf ${WEBP_LIB} ${WEBPDECODER_LIB} ${WEBPMUX_LIB} ${WEBPDEMUX_LIB} ${SHARPYUV_LIB}
 
 lipo -create -arch x86_64 "${TOPDIR}/build_MAC/${WEBP_LIB}" -arch arm64 "${TOPDIR}/build_MAC_ARM64/${WEBP_LIB}" -output ${WEBP_LIB}
 lipo -create -arch x86_64 "${TOPDIR}/build_MAC/${WEBPDECODER_LIB}" -arch arm64 "${TOPDIR}/build_MAC_ARM64/${WEBPDECODER_LIB}" -output ${WEBPDECODER_LIB}
 lipo -create -arch x86_64 "${TOPDIR}/build_MAC/${WEBPMUX_LIB}" -arch arm64 "${TOPDIR}/build_MAC_ARM64/${WEBPMUX_LIB}" -output ${WEBPMUX_LIB}
 lipo -create -arch x86_64 "${TOPDIR}/build_MAC/${WEBPDEMUX_LIB}" -arch arm64 "${TOPDIR}/build_MAC_ARM64/${WEBPDEMUX_LIB}" -output ${WEBPDEMUX_LIB}
 lipo -create -arch x86_64 "${TOPDIR}/build_MAC/${SHARPYUV_LIB}" -arch arm64 "${TOPDIR}/build_MAC_ARM64/${SHARPYUV_LIB}" -output ${SHARPYUV_LIB}
+
+echo "Done"
