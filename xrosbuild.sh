@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+# NOTE: Run this script on a Intel Mac. Silicon Mac won't work as configure will report error
+#
 # This script generates 'WebP.framework' and 'WebPDecoder.framework',
 # 'WebPDemux.framework' and 'WebPMux.framework'.
 # An visionOS app can decode WebP images by including 'WebPDecoder.framework' and
@@ -35,10 +37,14 @@ fi
 
 echo "XROS SDK: ${SDK}"
 
+if [[ $(uname -m) == 'arm64' ]]; then
+  echo "This script still does't support Mac Silicon. Use Mac x86_64 to build."
+  exit 1
+fi
+
 readonly OLDPATH=${PATH}
 
 PLATFORMS="XROS-arm64 XRSimulator-arm64"
-#readonly PLATFORMS
 readonly SRCDIR=$(dirname $0)
 readonly TOPDIR=$(pwd)
 
