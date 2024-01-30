@@ -31,8 +31,9 @@ readonly OLDPATH=${PATH}
 
 # Add iPhoneOS-V6 to the list of platforms below if you need armv6 support.
 # Note that iPhoneOS-V6 support is not available with the iOS6 SDK.
-PLATFORMS="iPhoneSimulator iPhoneSimulator64"
-PLATFORMS+=" iPhoneOS-V7 iPhoneOS-V7s iPhoneOS-V7-arm64"
+#PLATFORMS="iPhoneSimulator iPhoneSimulator64"
+#PLATFORMS+=" iPhoneOS-V7 iPhoneOS-V7s iPhoneOS-V7-arm64"
+PLATFORMS="iPhoneOS-V7 iPhoneOS-V7s iPhoneOS-V7-arm64"
 readonly PLATFORMS
 readonly SRCDIR=$(dirname $0)
 readonly TOPDIR=$(pwd)
