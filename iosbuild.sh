@@ -155,25 +155,30 @@ done
 
 echo "LIBLIST = ${LIBLIST}"
 cp -a ${SRCDIR}/src/webp/{decode,encode,types}.h ${TARGETDIR}/Headers/
+cp -a ${SRCDIR}/plist/ios/Info_WebP.plist ${TARGETDIR}/Info.plist
 ${LIPO} -create ${LIBLIST} -output ${TARGETDIR}/WebP
 
 echo "DECLIBLIST = ${DECLIBLIST}"
 cp -a ${SRCDIR}/src/webp/{decode,types}.h ${DECTARGETDIR}/Headers/
+cp -a ${SRCDIR}/plist/ios/Info_WebPDecoder.plist ${DECTARGETDIR}/Info.plist
 ${LIPO} -create ${DECLIBLIST} -output ${DECTARGETDIR}/WebPDecoder
 
 echo "MUXLIBLIST = ${MUXLIBLIST}"
 cp -a ${SRCDIR}/src/webp/{types,mux,mux_types}.h \
     ${MUXTARGETDIR}/Headers/
+cp -a ${SRCDIR}/plist/ios/Info_WebPMux.plist ${MUXTARGETDIR}/Info.plist
 ${LIPO} -create ${MUXLIBLIST} -output ${MUXTARGETDIR}/WebPMux
 
 echo "DEMUXLIBLIST = ${DEMUXLIBLIST}"
 cp -a ${SRCDIR}/src/webp/{decode,types,mux_types,demux}.h \
     ${DEMUXTARGETDIR}/Headers/
+cp -a ${SRCDIR}/plist/ios/Info_WebPDemux.plist ${DEMUXTARGETDIR}/Info.plist
 ${LIPO} -create ${DEMUXLIBLIST} -output ${DEMUXTARGETDIR}/WebPDemux
 
 echo "SHARPYUVLIBLIST = ${SHARPYUVLIBLIST}"
 cp -a ${SRCDIR}/sharpyuv/{sharpyuv,sharpyuv_csp}.h \
     ${SHARPYUVTARGETDIR}/Headers/
+cp -a ${SRCDIR}/plist/ios/Info_SharpYuv.plist ${SHARPYUVTARGETDIR}/Info.plist
 ${LIPO} -create ${SHARPYUVLIBLIST} -output ${SHARPYUVTARGETDIR}/SharpYuv
 
 echo  "SUCCESS"
